@@ -151,6 +151,12 @@ class RegisterView(APIView):
             profile.location = request.POST.get('location')
             profile.phone_number = request.POST.get('phonenumber')
             profile.save()
+            founder=Founder()
+            founder.user=user
+            founder.save()
+            loser=Loser()
+            loser.user=user
+            loser.save()
             return Response({'registered': True})
 
 
@@ -160,9 +166,10 @@ class LostPostView(APIView):
 
     def post(self, request):
         dir_path = "/Users/vishnuvarthan/Desktop/lostfound/media"
-        #date = request.POST.get('date').replace('/', ' ')
-        #tz = pytz.timezone('Asia/Kolkata')
-        #date = tz.localize(dt=datetime.datetime.strptime(date, r'%d %m %Y %I:%M %p'))
+        date = request.POST.get('date').replace('/', ' ')
+        tz = pytz.timezone('Asia/Kolkata')
+        date = tz.localize(dt=datetime.datetime.strptime(date, r'%d %m %Y %H:%M'))
+        print(date)
         if not hasattr(request.user, 'loser'):
             loser = Loser()
             loser.user = request.user
@@ -210,6 +217,9 @@ class FoundPostView(APIView):
         founder_img.img = data
         founder_img.founder = request.user.founder
         founder_img.location = request.POST.get('location').title()
+        tz = pytz.timezone('Asia/Kolkata')
+        founder_img.date_found=tz.localize(dt=datetime.datetime.now())
+
         founder_img.save()
         ab_path = os.path.join(dir_path, str(founder_img.img))
 
