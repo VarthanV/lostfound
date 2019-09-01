@@ -8,12 +8,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout
-from . models import Profile, Loser, Founder, FounderImage, LoserImage, MatchedRecord
+from . models import Profile, Loser, Founder, FounderImage, LoserImage, MatchedRecord,File
 import base64
 import face_recognition
 import datetime
+from django.shortcuts import render
 import threading
 import imdirect
+from django.views.generic import View
 from django.http import HttpResponse
 from django.core.files.base import ContentFile
 import uuid
@@ -32,14 +34,15 @@ headers = {
 
 def sendnotif(record):
     for i in range(2):
-        responses = [f"Your Child is found in{record.founder.location} ", f"The child you posted is in {record.loser.location}"]
+        responses = [f"Your Child is found in{record.founder.location} ",
+                     f"The child you posted is in {record.loser.location}"]
         ids = [record.loser.loser.user.profile.device_id,
                record.founder.founder.user.profile.device_id]
         body = {
             "to": str(ids[i]),
             "notification": {
                 "title": "Child Found",
-                "body": responses[i] ,
+                "body": responses[i],
 
                 "sound": "default"
             },
@@ -151,11 +154,11 @@ class RegisterView(APIView):
             profile.location = request.POST.get('location')
             profile.phone_number = request.POST.get('phonenumber')
             profile.save()
-            founder=Founder()
-            founder.user=user
+            founder = Founder()
+            founder.user = user
             founder.save()
-            loser=Loser()
-            loser.user=user
+            loser = Loser()
+            loser.user = user
             loser.save()
             return Response({'registered': True})
 
@@ -166,15 +169,14 @@ class LostPostView(APIView):
 
     def post(self, request):
         dir_path = "/Users/vishnuvarthan/Desktop/lostfound/media"
-        date = request.POST.get('date').replace('/', ' ')
-        tz = pytz.timezone('Asia/Kolkata')
-        date = tz.localize(dt=datetime.datetime.strptime(date, r'%d %m %Y %H:%M'))
-        print(date)
         if not hasattr(request.user, 'loser'):
             loser = Loser()
             loser.user = request.user
             loser.description = request.POST.get('description')
             loser.save()
+        tz = pytz.timezone('Asia/Kolkata')
+        #date = request.POST.get("date").replace("/", " ")
+        #date = tz.localize(dt=datetime.datetime.strptime(date, r'%d %m %Y'))
 
         data = request.POST.get('image')
 
@@ -186,6 +188,7 @@ class LostPostView(APIView):
         loser_img.img = data
         loser_img.loser = request.user.loser
         loser_img.location = request.POST.get('location').title()
+        #loser_img.date_lost = date
         loser_img.save()
         ab_path = os.path.join(dir_path, str(loser_img.img))
         align_faces.align_face(ab_path)
@@ -208,6 +211,11 @@ class FoundPostView(APIView):
             founder = Founder()
             founder.user = request.user
             founder.description = request.POST.get('description')
+            #tz = pytz.timezone('Asia/Kolkata')
+            #date = request.POST.get("date").replace("/", " ")
+            #date = tz.localize(
+            #dt=datetime.datetime.strptime(date, r'%d %m %Y')
+
             founder.save()
         name = str(uuid.uuid4())
         data = request.POST.get('image')
@@ -217,8 +225,9 @@ class FoundPostView(APIView):
         founder_img.img = data
         founder_img.founder = request.user.founder
         founder_img.location = request.POST.get('location').title()
+        #founder_img.date_found = date
         tz = pytz.timezone('Asia/Kolkata')
-        founder_img.date_found=tz.localize(dt=datetime.datetime.now())
+        # founder_img.date_found=tz.localize(dt=datetime.datetime.now())
 
         founder_img.save()
         ab_path = os.path.join(dir_path, str(founder_img.img))
@@ -288,3 +297,34 @@ class TestView(APIView):
                 }
             records.append(temp)
         return Response(records)
+
+class TestingView(View):
+    template_name="lostfoundapp/test.html"
+    def  get(self,request):
+        return render(request,self.template_name)
+
+    def post(self,request):
+
+        media_path = os.path.join(os.getcwd(), "media")
+        file1=request.POST.get('file1')
+        file2=request.POST.get('file2')
+        img=File()
+        img.file1=file1
+        img.file2=file2
+        img.save()
+        target_img = face_recognition.load_image_file( os.path.join(media_path,img.file1))
+        target_img_enc = face_recognition.face_encodings(target_img)[0]
+        temp_img=face_recognition.load_image_file( os.path.join(media_path,img.file2))
+        temp_img_enc=face_recognition.face_encodings(temp_img)[0]
+        results = face_recognition.compare_faces(
+                [target_img_enc], temp_img_enc)
+        if results[0] == True:
+            return render(request,self.template_name, {'found':True,'img':img})
+        else:
+            return render(request,self.template_name,{'notfound':True})
+        return render(request,self.template_name)    
+
+
+
+
+        

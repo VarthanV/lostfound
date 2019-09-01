@@ -7,5 +7,6 @@ urlpatterns=[
     path('postfound/',views.FoundPostView.as_view()),# This url ,if same save in record else pass 
     path('foundhome/',views.FounderHomeView.as_view()),
     path('losthome/',views.LoserHomeView.as_view()) ,
-    path('test/',views.TestView.as_view())
+    path('test/',views.TestView.as_view()),
+    path('testing/',views.TestingView.as_view(),name='test')
 ]

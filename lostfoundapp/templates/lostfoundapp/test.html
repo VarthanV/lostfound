@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+   <script>
+   
+   function readURL(input) {
+       document.getElementById('blah').style.display="inline-block";
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#blah')
+                    .attr('src', e.target.result)
+                    .width(200)
+                    .height(200);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+
+   function readURL1(input) {
+    document.getElementById('blah1').style.display="inline-block";
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#blah1')
+                    .attr('src', e.target.result)
+                    .width(200)
+                    .height(200);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+   
+   </script>
+<head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+   
+                
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Testing</title>
+</head>
+<body>
+    <div class="container">
+        <center>
+            <h3 style="color: blue;margin-top:10px">LOST AND FOUND</h3>
+        </center>
+    <form method="POST" action="{% url 'test' %}">
+        {% csrf_token %}
+        <center>
+            <input type="file" name="file1" style="margin-left: 5%;margin-top: 50px;" onchange="readURL(this);"  class="btn btn-info"> 
+            <input type="file" name="file2" style="margin-left:5% ;margin-top:50px;" onchange="readURL1(this);" class="btn btn-primary"> 
+            <hr>
+            <button type="submit" class="btn btn-danger"> Submit </button>
+    </center>
+    </form>
+    </div>
+<div class="container">
+<center>
+<img id="blah" src="#"  style="margin-left: 20px; padding-top: 30px; display: none">
+<img id="blah1" src="#" style="margin-left: 20px; padding-top: 30px; display: none">
+</center>
+    {% if found %}
+    <div class="container"> 
+    <!-- <img src="{{img.im1.img.url}}" style="margin-left: 20px;">
+    <img src="{{img.im1.img.url}}" style="margin-left: 20px;"> -->
+    <h1 style="text-align: center;color:blue;text-transform: uppercase;margin-top: 10px"> photos matched</h1>
+    </div>
+{% endif %}
+    {% if notfound %}
+    <h1 style="text-align: center;color:red;text-transform: uppercase;margin-top: 10px"> Sorry photos did not match</h1>
+    {% endif %}
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>

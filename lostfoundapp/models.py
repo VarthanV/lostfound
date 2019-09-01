@@ -28,6 +28,7 @@ class FounderImage(models.Model):
     founder=models.ForeignKey(Founder,on_delete=models.CASCADE,blank=True,null=True)
     img=models.ImageField()
     location=models.CharField(max_length=200)
+    date_found=models.DateTimeField(null=True)
     def __str__(self):
         return self.founder.user.username
 
@@ -35,6 +36,7 @@ class LoserImage(models.Model):
     loser=models.ForeignKey(Loser,on_delete=models.CASCADE,blank=True,null=True)
     img=models.ImageField()
     location=models.CharField(max_length=200)  
+    date_lost=models.DateTimeField(null=True)
     def __str__(self):
         return self.loser.user.username  
 
@@ -43,7 +45,9 @@ class MatchedRecord(models.Model):
     founder = models.ForeignKey(FounderImage,on_delete=models.CASCADE)
     match_confirm = models.BooleanField(default=False)
     
-
+class File(models.Model):
+    im1=models.ImageField()
+    im2=models.ImageField()
     
 
 
