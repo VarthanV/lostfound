@@ -312,9 +312,9 @@ class TestingView(View):
         img.file1=file1
         img.file2=file2
         img.save()
-        target_img = face_recognition.load_image_file(img.file1)
+        target_img = face_recognition.load_image_file( os.path.join(media_path,img.file1))
         target_img_enc = face_recognition.face_encodings(target_img)[0]
-        temp_img=face_recognition.load_image_file( img.file2)
+        temp_img=face_recognition.load_image_file( os.path.join(media_path,img.file2))
         temp_img_enc=face_recognition.face_encodings(temp_img)[0]
         results = face_recognition.compare_faces(
                 [target_img_enc], temp_img_enc)
